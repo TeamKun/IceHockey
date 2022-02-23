@@ -17,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class Ball extends BukkitRunnable implements Listener {
@@ -24,6 +25,8 @@ public class Ball extends BukkitRunnable implements Listener {
     private final Player rider;
     private final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     private final PacketContainer mountPacket;
+    private Vector velocity = new Vector();
+    private double friction = 0.0;
 
     public Ball(Player rider, Location location, Plugin plugin) {
         armorStand = ((ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND, CreatureSpawnEvent.SpawnReason.CUSTOM, e -> {
@@ -39,7 +42,7 @@ public class Ball extends BukkitRunnable implements Listener {
         mountPacket.getIntegers().write(0, armorStand.getEntityId());
         mountPacket.getIntegerArrays().write(0, new int[]{rider.getEntityId()});
 
-        runTaskTimerAsynchronously(plugin, 0, 4);
+        runTaskTimerAsynchronously(plugin, 0, 0);
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -47,6 +50,18 @@ public class Ball extends BukkitRunnable implements Listener {
         armorStand.remove();
         HandlerList.unregisterAll(this);
         cancel();
+    }
+
+    public void setVelocity(Vector velocity) {
+        this.velocity = velocity;
+    }
+
+    public double friction() {
+        return friction;
+    }
+
+    public void friction(double friction) {
+        this.friction = friction;
     }
 
     public void teleport(Location to) {
@@ -77,5 +92,12 @@ public class Ball extends BukkitRunnable implements Listener {
             }
         } catch (Exception ignored) {
         }
+
+        tickMove();
+    }
+
+    private void tickMove() {
+        teleport(armorStand.getLocation().add(velocity.clone().multiply(0.05)));
+        velocity.multiply(1 - friction);
     }
 }
