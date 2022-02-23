@@ -7,7 +7,8 @@ import net.kunmc.lab.icehockey.command.MainCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IceHockeyPlugin extends JavaPlugin {
-    public final Config config;
+    public static Config config;
+    public static Game game;
 
     public IceHockeyPlugin() {
         config = new Config(this);
@@ -20,6 +21,8 @@ public final class IceHockeyPlugin extends JavaPlugin {
         FlyLib.create(this, builder -> {
             builder.command(new MainCommand(configCommand));
         });
+
+        game = new Game(config, this);
     }
 
     @Override
