@@ -6,6 +6,8 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -17,6 +19,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -99,5 +103,37 @@ public class Ball extends BukkitRunnable implements Listener {
     private void tickMove() {
         teleport(armorStand.getLocation().add(velocity.clone().multiply(0.05)));
         velocity.multiply(1 - friction);
+
+        RayTraceResult rayTraceResult = rayTrace();
+        if (rayTraceResult == null || rayTraceResult.getHitBlock() == null) {
+            return;
+        }
+        if (!isCollideWith(rayTraceResult.getHitBlock())) {
+            return;
+        }
+
+        Vector normal = rayTraceResult.getHitBlockFace().getDirection();
+        Vector direction = direction().add(direction().multiply(-1).multiply(normal).multiply(2).multiply(normal)).normalize();
+        velocity = direction.multiply(velocity.length());
+    }
+
+    private boolean isCollideWith(Block b) {
+        BoundingBox boundingBox = rider.getBoundingBox().expand(0.625);
+        return !b.isPassable() && boundingBox.overlaps(b.getBoundingBox());
+    }
+
+    private Vector direction() {
+        return velocity.clone().normalize();
+    }
+
+    private RayTraceResult rayTrace() {
+        if (velocity.length() == 0) {
+            return null;
+        }
+
+        BoundingBox boundingBox = rider.getBoundingBox();
+        World w = rider.getWorld();
+
+        return w.rayTraceBlocks(boundingBox.getCenter().toLocation(w), direction(), 3);
     }
 }
