@@ -6,6 +6,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -49,7 +50,10 @@ public class Ball extends BukkitRunnable implements Listener {
     }
 
     public void teleport(Location to) {
-        armorStand.teleport(to);
+        try {
+            ((CraftArmorStand) armorStand).getHandle().teleportAndSync(to.getX(), to.getY(), to.getZ());
+        } catch (Exception ignored) {
+        }
     }
 
     @EventHandler
