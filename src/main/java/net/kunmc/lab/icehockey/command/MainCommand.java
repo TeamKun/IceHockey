@@ -7,6 +7,6 @@ public class MainCommand extends Command {
     public MainCommand(ConfigCommand configCommand) {
         super("icehockey");
 
-        children(configCommand);
+        children(new StartCommand(), new StopCommand(), configCommand);
     }
 }
