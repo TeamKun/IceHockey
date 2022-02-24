@@ -3,6 +3,7 @@ package net.kunmc.lab.icehockey;
 import dev.kotx.flylib.command.CommandContext;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -10,9 +11,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,5 +167,17 @@ public class Game implements Listener {
 
             count++;
         }
+    }
+
+    @EventHandler
+    private void playerCollision(PlayerMoveEvent e) {
+        Location ballLocation = ball.getLocation();
+
+        if (e.getPlayer().getLocation().distance(ballLocation) > 1.0) {
+            return;
+        }
+
+        Vector velocity = e.getTo().toVector().subtract(e.getFrom().toVector()).multiply(20).setY(0);
+        ball.setVelocity(ball.getVelocity().add(velocity));
     }
 }

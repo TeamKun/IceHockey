@@ -6,6 +6,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
@@ -56,6 +57,10 @@ public class Ball extends BukkitRunnable implements Listener {
         cancel();
     }
 
+    public Vector getVelocity() {
+        return velocity.clone();
+    }
+
     public void setVelocity(Vector velocity) {
         this.velocity = velocity;
     }
@@ -69,10 +74,22 @@ public class Ball extends BukkitRunnable implements Listener {
     }
 
     public void teleport(Location to) {
+        if (to.getBlock().getType() != Material.AIR && to.getBlock().getType() != Material.CAVE_AIR) {
+            return;
+        }
+        
         try {
             ((CraftArmorStand) armorStand).getHandle().teleportAndSync(to.getX(), to.getY(), to.getZ());
         } catch (Exception ignored) {
         }
+    }
+
+    public Player getRider() {
+        return rider;
+    }
+
+    public Location getLocation() {
+        return armorStand.getLocation();
     }
 
     @EventHandler
