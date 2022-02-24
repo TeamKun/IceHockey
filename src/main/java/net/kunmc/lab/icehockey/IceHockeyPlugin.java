@@ -12,6 +12,8 @@ public final class IceHockeyPlugin extends JavaPlugin {
 
     public IceHockeyPlugin() {
         config = new Config(this);
+        config.saveConfigIfAbsent();
+        config.loadConfig();
     }
 
     @Override
